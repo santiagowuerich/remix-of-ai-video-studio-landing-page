@@ -9,12 +9,10 @@ const scheduleData = [
   { day: 'Lunes', hours: 'Cerrado' },
 ];
 
-const ticketPrices = [
-  { type: 'General', price: '$2.500', note: '' },
-  { type: 'Estudiantes', price: '$1.500', note: 'Con credencial' },
-  { type: 'Jubilados', price: '$1.000', note: '' },
-  { type: 'Menores de 12', price: 'Gratis', note: 'Acompañados' },
-];
+const ticketInfo = {
+  price: '$2.500',
+  note: 'Entrada general única'
+};
 
 export const InfoSection = () => {
   const ref = useRef(null);
@@ -157,30 +155,16 @@ export const InfoSection = () => {
                 <div className="w-10 h-10 rounded-lg bg-rust/20 flex items-center justify-center">
                   <Calendar className="w-5 h-5 text-rust" />
                 </div>
-                <h3 className="text-xl font-serif font-semibold text-foreground">Entradas</h3>
+                <h3 className="text-xl font-serif font-semibold text-foreground">Entrada</h3>
               </div>
               
-              <div className="space-y-3 mb-6">
-                {ticketPrices.map((item, index) => (
-                  <div 
-                    key={index}
-                    className="flex justify-between items-center py-3 border-b border-border last:border-0"
-                  >
-                    <div>
-                      <span className="text-foreground">{item.type}</span>
-                      {item.note && (
-                        <span className="text-xs text-muted-foreground block">{item.note}</span>
-                      )}
-                    </div>
-                    <span className={`font-semibold ${item.price === 'Gratis' ? 'text-neon-cyan' : 'text-rust'}`}>
-                      {item.price}
-                    </span>
-                  </div>
-                ))}
+              <div className="text-center py-6 border-b border-border mb-6">
+                <span className="text-4xl font-bold text-rust">{ticketInfo.price}</span>
+                <p className="text-muted-foreground mt-2">{ticketInfo.note}</p>
               </div>
 
               <button className="w-full bg-rust hover:bg-rust-light text-foreground font-semibold py-4 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-rust/30">
-                Comprar Entradas Online
+                Comprar Entrada Online
               </button>
             </div>
 
