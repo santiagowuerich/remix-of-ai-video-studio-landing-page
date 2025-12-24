@@ -12,28 +12,33 @@ export const HeroSection = () => {
 
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image with Overlay */}
+      {/* Background Image - Prison Architecture */}
       <div className="absolute inset-0">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
           style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1584752242818-b4bd7fb3fe10?q=80&w=2070&auto=format&fit=crop')`,
+            backgroundImage: `url('https://images.unsplash.com/photo-1520209759809-a9bcb6cb3241?q=80&w=2070&auto=format&fit=crop')`,
           }}
         />
-        {/* Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/50 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/60" />
         
-        {/* Subtle grain texture */}
+        {/* Aggressive dark gradient - solid black at bottom 60%, fading up */}
         <div 
-          className="absolute inset-0 opacity-20 mix-blend-overlay"
+          className="absolute inset-0"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            background: 'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.95) 40%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0.1) 100%)',
           }}
         />
         
-        {/* Rust/Orange accent glow */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-rust/20 blur-[150px] rounded-full" />
+        {/* Subtle vignette for depth */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%)',
+          }}
+        />
+        
+        {/* Subtle warm accent at bottom */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-rust/10 blur-[120px] rounded-full" />
       </div>
 
       {/* Content */}
@@ -44,23 +49,25 @@ export const HeroSection = () => {
           transition={{ duration: 0.8, ease: 'easeOut' }}
           className="max-w-5xl mx-auto"
         >
-          {/* Badge */}
+          {/* Subtle Badge */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rust/10 border border-rust/30 text-rust mb-8"
+            className="inline-flex items-center gap-2 mb-8"
           >
-            <span className="w-2 h-2 rounded-full bg-rust animate-pulse" />
-            <span className="text-sm font-medium">Desde 1888 • Corrientes, Argentina</span>
+            <span className="text-sm font-medium tracking-widest uppercase text-rust/80">
+              Desde 1888 • Corrientes, Argentina
+            </span>
           </motion.div>
 
-          {/* Main Title */}
+          {/* Main Title - Pure White */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className="font-serif text-foreground text-shadow-strong mb-6"
+            className="font-serif mb-6"
+            style={{ color: '#FFFFFF', textShadow: '0 4px 30px rgba(0,0,0,0.8)' }}
           >
             La Unidad:
             <br />
@@ -69,12 +76,13 @@ export const HeroSection = () => {
             Convergen
           </motion.h1>
 
-          {/* Subtitle */}
+          {/* Subtitle - Pure White */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto mb-10 leading-relaxed text-shadow-subtle"
+            className="text-lg md:text-xl max-w-2xl mx-auto mb-14 leading-relaxed"
+            style={{ color: 'rgba(255,255,255,0.9)', textShadow: '0 2px 20px rgba(0,0,0,0.6)' }}
           >
             Recorre los muros de un Panóptico histórico. 
             Vive una experiencia sensorial única en el corazón de Corrientes.
@@ -123,11 +131,6 @@ export const HeroSection = () => {
         </motion.div>
       </div>
 
-      {/* Decorative corners */}
-      <div className="absolute top-20 left-8 w-20 h-20 border-l-2 border-t-2 border-rust/30" />
-      <div className="absolute top-20 right-8 w-20 h-20 border-r-2 border-t-2 border-rust/30" />
-      <div className="absolute bottom-20 left-8 w-20 h-20 border-l-2 border-b-2 border-rust/30" />
-      <div className="absolute bottom-20 right-8 w-20 h-20 border-r-2 border-b-2 border-rust/30" />
     </section>
   );
 };
