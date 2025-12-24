@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { ChevronDown, Play, Ticket } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const HeroSection = () => {
   const scrollToSection = (href: string) => {
@@ -86,13 +87,13 @@ export const HeroSection = () => {
             transition={{ delay: 0.7, duration: 0.6 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
-            <button
-              onClick={() => scrollToSection('#info')}
+            <Link
+              to="/checkout"
               className="group flex items-center gap-3 bg-rust hover:bg-rust-light text-foreground font-semibold px-8 py-4 rounded-lg transition-all duration-300 hover:shadow-xl hover:shadow-rust/30 hover:scale-105"
             >
               <Ticket className="w-5 h-5" />
               <span>Comprar Entradas</span>
-            </button>
+            </Link>
             
             <button
               onClick={() => scrollToSection('#recorrido')}

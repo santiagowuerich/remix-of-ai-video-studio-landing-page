@@ -1,25 +1,16 @@
-import { Navigation } from './components/museum/Navigation';
-import { HeroSection } from './components/museum/HeroSection';
-import { HistorySection } from './components/museum/HistorySection';
-import { ToursSection } from './components/museum/ToursSection';
-import { GallerySection } from './components/museum/GallerySection';
-import { InfoSection } from './components/museum/InfoSection';
-import { MuseumFooter } from './components/museum/MuseumFooter';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Index from './pages/Index';
+import Checkout from './pages/Checkout';
+import NotFound from './pages/NotFound';
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Navigation />
-      
-      <main role="main">
-        <HeroSection />
-        <HistorySection />
-        <ToursSection />
-        <GallerySection />
-        <InfoSection />
-      </main>
-      
-      <MuseumFooter />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
