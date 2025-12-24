@@ -47,6 +47,11 @@
   --cement: 0 0% 33%;
   --cement-dark: 0 0% 18%;
   
+  /* Dashboard Status Colors */
+  --status-success: 145 100% 45%;
+  --status-danger: 348 100% 55%;
+  --status-warning: 33 100% 50%;
+  
   /* Gradients */
   --gradient-rust: linear-gradient(135deg, hsl(var(--rust)), hsl(var(--brick)));
   --gradient-neon: linear-gradient(135deg, hsl(var(--neon-cyan)), hsl(var(--neon-yellow)));
@@ -106,6 +111,11 @@
   --color-neon-yellow: hsl(var(--neon-yellow));
   --color-cement: hsl(var(--cement));
   --color-cement-dark: hsl(var(--cement-dark));
+  
+  /* Dashboard status colors */
+  --color-status-success: hsl(var(--status-success));
+  --color-status-danger: hsl(var(--status-danger));
+  --color-status-warning: hsl(var(--status-warning));
   
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
