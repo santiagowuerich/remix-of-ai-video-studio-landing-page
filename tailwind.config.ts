@@ -55,7 +55,36 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Museum custom colors
+        // La Unidad Institutional
+        institucional: {
+          DEFAULT: "hsl(var(--institucional))",
+          light: "hsl(var(--institucional-light))",
+          dark: "hsl(var(--institucional-dark))",
+        },
+        // Polos de La Unidad - Space Colors
+        polo: {
+          cyan: {
+            DEFAULT: "hsl(var(--polo-cyan))",
+            light: "hsl(var(--polo-cyan-light))",
+            dark: "hsl(var(--polo-cyan-dark))",
+          },
+          violet: {
+            DEFAULT: "hsl(var(--polo-violet))",
+            light: "hsl(var(--polo-violet-light))",
+            dark: "hsl(var(--polo-violet-dark))",
+          },
+          magenta: {
+            DEFAULT: "hsl(var(--polo-magenta))",
+            light: "hsl(var(--polo-magenta-light))",
+            dark: "hsl(var(--polo-magenta-dark))",
+          },
+          orange: {
+            DEFAULT: "hsl(var(--polo-orange))",
+            light: "hsl(var(--polo-orange-light))",
+            dark: "hsl(var(--polo-orange-dark))",
+          },
+        },
+        // Legacy colors (compatibility)
         rust: {
           DEFAULT: "hsl(var(--rust))",
           light: "hsl(var(--rust-light))",

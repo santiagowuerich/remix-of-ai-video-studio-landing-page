@@ -38,12 +38,34 @@
   --input: 0 0% 14%;
   --ring: 0 0% 44%;
   
-  /* Museum Accent Colors (HSL format) */
+  /* La Unidad - Institutional Green (HSL format) */
+  --institucional: 75 60% 45%;
+  --institucional-light: 75 58% 55%;
+  --institucional-dark: 88 67% 25%;
+  
+  /* Polos de La Unidad - Space Colors */
+  --polo-cyan: 186 54% 50%;
+  --polo-cyan-light: 186 54% 65%;
+  --polo-cyan-dark: 180 37% 25%;
+  
+  --polo-violet: 276 64% 60%;
+  --polo-violet-light: 276 64% 75%;
+  --polo-violet-dark: 276 64% 45%;
+  
+  --polo-magenta: 340 75% 55%;
+  --polo-magenta-light: 340 75% 70%;
+  --polo-magenta-dark: 336 60% 40%;
+  
+  --polo-orange: 37 85% 55%;
+  --polo-orange-light: 37 85% 70%;
+  --polo-orange-dark: 30 80% 45%;
+  
+  /* Legacy accent (keep for compatibility) */
   --rust: 14 55% 46%;
   --rust-light: 14 55% 57%;
   --brick: 13 48% 37%;
-  --neon-cyan: 180 100% 50%;
-  --neon-yellow: 55 100% 50%;
+  --neon-cyan: 186 54% 50%;
+  --neon-yellow: 75 60% 45%;
   --cement: 0 0% 33%;
   --cement-dark: 0 0% 18%;
   
@@ -53,8 +75,12 @@
   --status-warning: 33 100% 50%;
   
   /* Gradients */
+  --gradient-institucional: linear-gradient(135deg, hsl(var(--institucional)), hsl(var(--institucional-dark)));
+  --gradient-cyan: linear-gradient(135deg, hsl(var(--polo-cyan)), hsl(var(--polo-cyan-dark)));
+  --gradient-violet: linear-gradient(135deg, hsl(var(--polo-violet)), hsl(var(--polo-violet-dark)));
+  --gradient-magenta: linear-gradient(135deg, hsl(var(--polo-magenta)), hsl(var(--polo-magenta-dark)));
+  --gradient-orange: linear-gradient(135deg, hsl(var(--polo-orange)), hsl(var(--polo-orange-dark)));
   --gradient-rust: linear-gradient(135deg, hsl(var(--rust)), hsl(var(--brick)));
-  --gradient-neon: linear-gradient(135deg, hsl(var(--neon-cyan)), hsl(var(--neon-yellow)));
   --gradient-dark: linear-gradient(180deg, hsl(0 0% 4%), hsl(0 0% 6%));
   
   --radius: 0.75rem;
@@ -103,7 +129,29 @@
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
   
-  /* Museum accent colors */
+  /* La Unidad Institutional */
+  --color-institucional: hsl(var(--institucional));
+  --color-institucional-light: hsl(var(--institucional-light));
+  --color-institucional-dark: hsl(var(--institucional-dark));
+  
+  /* Polos colors */
+  --color-polo-cyan: hsl(var(--polo-cyan));
+  --color-polo-cyan-light: hsl(var(--polo-cyan-light));
+  --color-polo-cyan-dark: hsl(var(--polo-cyan-dark));
+  
+  --color-polo-violet: hsl(var(--polo-violet));
+  --color-polo-violet-light: hsl(var(--polo-violet-light));
+  --color-polo-violet-dark: hsl(var(--polo-violet-dark));
+  
+  --color-polo-magenta: hsl(var(--polo-magenta));
+  --color-polo-magenta-light: hsl(var(--polo-magenta-light));
+  --color-polo-magenta-dark: hsl(var(--polo-magenta-dark));
+  
+  --color-polo-orange: hsl(var(--polo-orange));
+  --color-polo-orange-light: hsl(var(--polo-orange-light));
+  --color-polo-orange-dark: hsl(var(--polo-orange-dark));
+  
+  /* Legacy accent colors */
   --color-rust: hsl(var(--rust));
   --color-rust-light: hsl(var(--rust-light));
   --color-brick: hsl(var(--brick));
