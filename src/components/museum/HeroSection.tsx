@@ -37,8 +37,8 @@ export const HeroSection = () => {
           }}
         />
         
-        {/* Subtle warm accent at bottom */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-rust/10 blur-[120px] rounded-full" />
+        {/* Subtle institutional green accent at bottom */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-institucional/10 blur-[120px] rounded-full" />
       </div>
 
       {/* Content */}
@@ -56,7 +56,7 @@ export const HeroSection = () => {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="inline-flex items-center gap-2 mb-8"
           >
-            <span className="text-sm font-medium tracking-widest uppercase text-rust/80">
+            <span className="text-sm font-medium tracking-widest uppercase text-institucional/80">
               Desde 1888 • Corrientes, Argentina
             </span>
           </motion.div>
@@ -66,12 +66,12 @@ export const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className="font-serif mb-6"
+            className="font-sans font-bold mb-6"
             style={{ color: '#FFFFFF', textShadow: '0 4px 30px rgba(0,0,0,0.8)' }}
           >
             La Unidad:
             <br />
-            <span className="text-rust">Donde el Pasado y el Futuro</span>
+            <span className="text-institucional">Donde el Pasado y el Futuro</span>
             <br />
             Convergen
           </motion.h1>
@@ -97,7 +97,7 @@ export const HeroSection = () => {
           >
             <Link
               to="/checkout"
-              className="group flex items-center gap-3 bg-rust hover:bg-rust-light text-foreground font-semibold px-8 py-4 rounded-lg transition-all duration-300 hover:shadow-xl hover:shadow-rust/30 hover:scale-105"
+              className="group flex items-center gap-3 bg-institucional hover:bg-institucional-light text-background font-semibold px-8 py-4 rounded-lg transition-all duration-300 hover:shadow-xl hover:shadow-institucional/30 hover:scale-105"
             >
               <Ticket className="w-5 h-5" />
               <span>Comprar Entradas</span>
@@ -105,7 +105,7 @@ export const HeroSection = () => {
             
             <button
               onClick={() => scrollToSection('#recorrido')}
-              className="group flex items-center gap-3 border-2 border-foreground/30 hover:border-neon-cyan text-foreground font-semibold px-8 py-4 rounded-lg backdrop-blur-sm bg-background/10 transition-all duration-300 hover:bg-neon-cyan/10 hover:text-neon-cyan"
+              className="group flex items-center gap-3 border-2 border-foreground/30 hover:border-polo-cyan text-foreground font-semibold px-8 py-4 rounded-lg backdrop-blur-sm bg-background/10 transition-all duration-300 hover:bg-polo-cyan/10 hover:text-polo-cyan"
             >
               <Play className="w-5 h-5" />
               <span>Ver Recorrido 360°</span>
@@ -122,11 +122,11 @@ export const HeroSection = () => {
         >
           <button
             onClick={() => scrollToSection('#historia')}
-            className="flex flex-col items-center gap-2 text-foreground/60 hover:text-rust transition-colors group"
+            className="flex flex-col items-center gap-2 text-foreground/60 hover:text-institucional transition-colors group"
             aria-label="Scroll down"
           >
             <span className="text-sm font-medium">Descubre más</span>
-            <ChevronDown className="w-6 h-6 animate-bounce group-hover:text-rust" />
+            <ChevronDown className="w-6 h-6 animate-bounce group-hover:text-institucional" />
           </button>
         </motion.div>
       </div>
