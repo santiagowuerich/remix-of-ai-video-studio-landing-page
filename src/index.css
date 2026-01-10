@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -19,7 +19,7 @@
   --popover: 0 0% 8%;
   --popover-foreground: 0 0% 98%;
   
-  --primary: 0 0% 98%;
+  --primary: 75 85% 46%;
   --primary-foreground: 0 0% 4%;
   
   --secondary: 0 0% 14%;
@@ -28,46 +28,38 @@
   --muted: 0 0% 18%;
   --muted-foreground: 0 0% 63%;
   
-  --accent: 0 0% 14%;
-  --accent-foreground: 0 0% 98%;
+  --accent: 75 85% 46%;
+  --accent-foreground: 0 0% 4%;
   
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
   
   --border: 0 0% 20%;
   --input: 0 0% 14%;
-  --ring: 0 0% 44%;
+  --ring: 75 85% 46%;
   
-  /* La Unidad - Institutional Green (HSL format) */
-  --institucional: 75 60% 45%;
-  --institucional-light: 75 58% 55%;
-  --institucional-dark: 88 67% 25%;
+  /* La Unidad - Institutional Green (HSL format) - from brand #a4d816, #d4ff52, #138e21 */
+  --institucional: 75 85% 46%;
+  --institucional-light: 72 100% 66%;
+  --institucional-dark: 135 75% 32%;
+  --institucional-yellow: 65 100% 60%;
   
-  /* Polos de La Unidad - Space Colors */
-  --polo-cyan: 186 54% 50%;
-  --polo-cyan-light: 186 54% 65%;
-  --polo-cyan-dark: 180 37% 25%;
+  /* Polos de La Unidad - Space Colors (from brand hex values) */
+  --polo-cyan: 187 35% 67%;
+  --polo-cyan-light: 180 45% 80%;
+  --polo-cyan-dark: 180 30% 40%;
   
-  --polo-violet: 276 64% 60%;
-  --polo-violet-light: 276 64% 75%;
-  --polo-violet-dark: 276 64% 45%;
+  --polo-violet: 285 75% 60%;
+  --polo-violet-light: 285 70% 75%;
+  --polo-violet-dark: 285 65% 45%;
   
-  --polo-magenta: 340 75% 55%;
-  --polo-magenta-light: 340 75% 70%;
-  --polo-magenta-dark: 336 60% 40%;
+  --polo-magenta: 338 85% 52%;
+  --polo-magenta-light: 340 80% 68%;
+  --polo-magenta-dark: 330 70% 38%;
   
-  --polo-orange: 37 85% 55%;
-  --polo-orange-light: 37 85% 70%;
-  --polo-orange-dark: 30 80% 45%;
-  
-  /* Legacy accent (keep for compatibility) */
-  --rust: 14 55% 46%;
-  --rust-light: 14 55% 57%;
-  --brick: 13 48% 37%;
-  --neon-cyan: 186 54% 50%;
-  --neon-yellow: 75 60% 45%;
-  --cement: 0 0% 33%;
-  --cement-dark: 0 0% 18%;
+  --polo-orange: 35 90% 62%;
+  --polo-orange-light: 38 95% 72%;
+  --polo-orange-dark: 28 80% 50%;
   
   /* Dashboard Status Colors */
   --status-success: 145 100% 45%;
@@ -93,19 +85,19 @@
   --card-foreground: 0 0% 98%;
   --popover: 0 0% 8%;
   --popover-foreground: 0 0% 98%;
-  --primary: 0 0% 98%;
+  --primary: 75 85% 46%;
   --primary-foreground: 0 0% 4%;
   --secondary: 0 0% 14%;
   --secondary-foreground: 0 0% 98%;
   --muted: 0 0% 18%;
   --muted-foreground: 0 0% 63%;
-  --accent: 0 0% 14%;
-  --accent-foreground: 0 0% 98%;
+  --accent: 75 85% 46%;
+  --accent-foreground: 0 0% 4%;
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
   --border: 0 0% 20%;
   --input: 0 0% 14%;
-  --ring: 0 0% 44%;
+  --ring: 75 85% 46%;
 }
 
 /* Theme colors are defined in tailwind.config.ts */
@@ -131,15 +123,12 @@
     box-sizing: border-box;
   }
   
+  /* Inter for ALL text - modern and professional per brand guidelines */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Inter', sans-serif;
   }
   
   /* Font utility classes */
-  .font-serif {
-    font-family: 'Playfair Display', serif;
-  }
-  
   .font-sans {
     font-family: 'Inter', sans-serif;
   }
@@ -189,17 +178,17 @@
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   }
 
-  /* Rust/Brick accent glow */
-  .glow-rust {
+  /* Institutional green glow */
+  .glow-institucional {
     box-shadow: 
-      0 0 20px rgba(180, 83, 53, 0.3),
-      0 0 40px rgba(180, 83, 53, 0.2);
+      0 0 20px rgba(164, 216, 22, 0.3),
+      0 0 40px rgba(164, 216, 22, 0.2);
   }
   
-  .glow-neon {
+  .glow-cyan {
     box-shadow: 
-      0 0 20px rgba(0, 255, 255, 0.3),
-      0 0 40px rgba(0, 255, 255, 0.2);
+      0 0 20px rgba(151, 190, 193, 0.3),
+      0 0 40px rgba(151, 190, 193, 0.2);
   }
 
   /* Timeline line */
@@ -207,8 +196,8 @@
     background: linear-gradient(
       180deg,
       transparent 0%,
-      hsl(var(--rust)) 10%,
-      hsl(var(--rust)) 90%,
+      hsl(var(--institucional)) 10%,
+      hsl(var(--institucional)) 90%,
       transparent 100%
     );
   }
@@ -223,12 +212,12 @@
   }
   
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--rust) / 0.5);
+    background: hsl(var(--institucional) / 0.5);
     border-radius: 4px;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--rust));
+    background: hsl(var(--institucional));
   }
 
   /* Animations */
@@ -239,10 +228,10 @@
   
   @keyframes pulse-glow {
     0%, 100% { 
-      box-shadow: 0 0 20px rgba(180, 83, 53, 0.2);
+      box-shadow: 0 0 20px rgba(164, 216, 22, 0.2);
     }
     50% { 
-      box-shadow: 0 0 40px rgba(180, 83, 53, 0.4);
+      box-shadow: 0 0 40px rgba(164, 216, 22, 0.4);
     }
   }
   
@@ -339,9 +328,9 @@
   }
   
   .btn-primary {
-    @apply bg-rust text-foreground font-semibold px-8 py-4 rounded-lg
+    @apply bg-institucional text-background font-semibold px-8 py-4 rounded-lg
            transition-all duration-300 ease-out
-           hover:bg-rust-light hover:shadow-lg hover:shadow-rust/30
+           hover:bg-institucional-light hover:shadow-lg hover:shadow-institucional/30
            active:scale-95;
   }
   
@@ -349,7 +338,7 @@
     @apply border-2 border-foreground/30 text-foreground font-semibold px-8 py-4 rounded-lg
            backdrop-blur-sm bg-background/10
            transition-all duration-300 ease-out
-           hover:border-rust hover:text-rust hover:bg-rust/10;
+           hover:border-institucional hover:text-institucional hover:bg-institucional/10;
   }
   
   .underline-animation {
@@ -358,7 +347,7 @@
   
   .underline-animation::after {
     content: '';
-    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-rust transition-all duration-300;
+    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-institucional transition-all duration-300;
   }
   
   .underline-animation:hover::after {

@@ -18,7 +18,6 @@ export default {
     },
     extend: {
       fontFamily: {
-        serif: ["Playfair Display", "Georgia", "serif"],
         sans: ["Inter", "system-ui", "sans-serif"],
       },
       colors: {
@@ -83,20 +82,6 @@ export default {
             light: "hsl(var(--polo-orange-light))",
             dark: "hsl(var(--polo-orange-dark))",
           },
-        },
-        // Legacy colors (compatibility)
-        rust: {
-          DEFAULT: "hsl(var(--rust))",
-          light: "hsl(var(--rust-light))",
-        },
-        brick: "hsl(var(--brick))",
-        neon: {
-          cyan: "hsl(var(--neon-cyan))",
-          yellow: "hsl(var(--neon-yellow))",
-        },
-        cement: {
-          DEFAULT: "hsl(var(--cement))",
-          dark: "hsl(var(--cement-dark))",
         },
       },
       borderRadius: {
