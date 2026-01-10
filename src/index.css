@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@custom-variant dark (&:is(.dark *));
+/* Dark mode variant handled by Tailwind */
 
 :root {
   --font-size: 16px;
@@ -108,68 +108,7 @@
   --ring: 0 0% 44%;
 }
 
-@theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  
-  /* La Unidad Institutional */
-  --color-institucional: hsl(var(--institucional));
-  --color-institucional-light: hsl(var(--institucional-light));
-  --color-institucional-dark: hsl(var(--institucional-dark));
-  
-  /* Polos colors */
-  --color-polo-cyan: hsl(var(--polo-cyan));
-  --color-polo-cyan-light: hsl(var(--polo-cyan-light));
-  --color-polo-cyan-dark: hsl(var(--polo-cyan-dark));
-  
-  --color-polo-violet: hsl(var(--polo-violet));
-  --color-polo-violet-light: hsl(var(--polo-violet-light));
-  --color-polo-violet-dark: hsl(var(--polo-violet-dark));
-  
-  --color-polo-magenta: hsl(var(--polo-magenta));
-  --color-polo-magenta-light: hsl(var(--polo-magenta-light));
-  --color-polo-magenta-dark: hsl(var(--polo-magenta-dark));
-  
-  --color-polo-orange: hsl(var(--polo-orange));
-  --color-polo-orange-light: hsl(var(--polo-orange-light));
-  --color-polo-orange-dark: hsl(var(--polo-orange-dark));
-  
-  /* Legacy accent colors */
-  --color-rust: hsl(var(--rust));
-  --color-rust-light: hsl(var(--rust-light));
-  --color-brick: hsl(var(--brick));
-  --color-neon-cyan: hsl(var(--neon-cyan));
-  --color-neon-yellow: hsl(var(--neon-yellow));
-  --color-cement: hsl(var(--cement));
-  --color-cement-dark: hsl(var(--cement-dark));
-  
-  /* Dashboard status colors */
-  --color-status-success: hsl(var(--status-success));
-  --color-status-danger: hsl(var(--status-danger));
-  --color-status-warning: hsl(var(--status-warning));
-  
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-}
+/* Theme colors are defined in tailwind.config.ts */
 
 @layer base {
   * {
