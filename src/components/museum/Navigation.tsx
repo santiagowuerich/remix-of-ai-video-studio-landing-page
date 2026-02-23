@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, MapPin } from 'lucide-react';
 
@@ -7,10 +8,12 @@ const navLinks = [
   { name: 'Historia', href: '#historia' },
   { name: 'Recorrido', href: '#recorrido' },
   { name: 'Galería', href: '#galeria' },
+  { name: 'Tienda', href: '/tienda' },
   { name: 'Visítanos', href: '#info' },
 ];
 
 export const Navigation = () => {
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -24,6 +27,11 @@ export const Navigation = () => {
   }, []);
 
   const scrollToSection = (href: string) => {
+    if (href.startsWith('/')) {
+      navigate(href);
+      setIsMobileMenuOpen(false);
+      return;
+    }
     const element = document.querySelector(href);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
