@@ -14,12 +14,22 @@ import {
   Calendar,
   Plus,
   Ticket,
-  X
+  X,
+  ShoppingBag,
+  Edit,
+  Trash2,
+  Upload,
+  Image as ImageIcon,
+  Eye,
+  EyeOff,
+  DollarSign,
+  Package
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Table,
   TableBody,
@@ -41,6 +51,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { products as initialProducts, Product, formatPrice } from '@/lib/merch-data';
 
 type ValidationResult = 'idle' | 'success' | 'error';
 
@@ -70,6 +81,11 @@ interface ManualTicket {
   createdAt: Date;
 }
 
+// Extended product for admin with visibility
+interface AdminProduct extends Product {
+  visible: boolean;
+}
+
 const sidebarItems = [
   { icon: Home, label: 'Inicio / KPIs', active: true },
   { icon: Calendar, label: 'Evento / Fechas', active: false },
@@ -86,7 +102,6 @@ const mockRecentEntries: RecentEntry[] = [
   { id: '5', time: '14:15', code: 'TK-2024-0888', name: 'Laura Sánchez', status: 'valid' },
 ];
 
-// Generar fechas futuras para el evento
 const generateEventDates = (): EventDate[] => {
   const dates: EventDate[] = [];
   const today = new Date();
@@ -95,7 +110,6 @@ const generateEventDates = (): EventDate[] => {
     const date = new Date(today);
     date.setDate(today.getDate() + i);
     
-    // Turno mañana
     dates.push({
       id: `date-${i}-am`,
       date: new Date(date),
@@ -105,7 +119,6 @@ const generateEventDates = (): EventDate[] => {
       manualTickets: Math.floor(Math.random() * 10),
     });
     
-    // Turno tarde
     dates.push({
       id: `date-${i}-pm`,
       date: new Date(date),
@@ -119,19 +132,47 @@ const generateEventDates = (): EventDate[] => {
   return dates;
 };
 
+const PRODUCT_CATEGORIES = ['Indumentaria', 'Accesorios', 'Papelería', 'Hogar'];
+
+const emptyProduct: Omit<AdminProduct, 'id'> = {
+  name: '',
+  shortDescription: '',
+  description: '',
+  price: 0,
+  image: '',
+  material: '',
+  inspiration: '',
+  sizes: [],
+  colors: [],
+  category: 'Accesorios',
+  visible: true,
+};
+
 export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [ticketCode, setTicketCode] = useState('');
   const [dniSearch, setDniSearch] = useState('');
   const [validationResult, setValidationResult] = useState<ValidationResult>('idle');
   const [recentEntries, setRecentEntries] = useState<RecentEntry[]>(mockRecentEntries);
-  const [activeSection, setActiveSection] = useState<'kpis' | 'eventos'>('kpis');
+  const [activeSection, setActiveSection] = useState<'kpis' | 'eventos' | 'merch'>('kpis');
   const [eventDates, setEventDates] = useState<EventDate[]>(generateEventDates);
   const [manualTickets, setManualTickets] = useState<ManualTicket[]>([]);
   const [isAddTicketOpen, setIsAddTicketOpen] = useState(false);
   const [selectedDateId, setSelectedDateId] = useState<string>('');
   const [newTicket, setNewTicket] = useState<{ name: string; dni: string; ticketType: 'general' | 'estudiante' | 'jubilado' }>({ name: '', dni: '', ticketType: 'general' });
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Merch admin state
+  const [merchProducts, setMerchProducts] = useState<AdminProduct[]>(
+    initialProducts.map(p => ({ ...p, visible: true }))
+  );
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(null);
+  const [productForm, setProductForm] = useState<Omit<AdminProduct, 'id'>>(emptyProduct);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [sizesInput, setSizesInput] = useState('');
+  const [colorsInput, setColorsInput] = useState('');
+  const [imagePreview, setImagePreview] = useState<string>('');
 
   // Métricas simuladas
   const visitorsToday = 145;
@@ -141,13 +182,11 @@ export default function Dashboard() {
   const nextTurnTime = '18:00';
   const nextTurnReservations = 45;
 
-  // Reloj en tiempo real
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Autofocus en el input
   useEffect(() => {
     if (activeSection === 'kpis') {
       inputRef.current?.focus();
@@ -192,7 +231,6 @@ export default function Dashboard() {
     
     setManualTickets([ticket, ...manualTickets]);
     
-    // Actualizar contador de tickets manuales en la fecha
     setEventDates(prev => prev.map(d => 
       d.id === selectedDateId 
         ? { ...d, manualTickets: d.manualTickets + 1 }
@@ -202,6 +240,84 @@ export default function Dashboard() {
     setNewTicket({ name: '', dni: '', ticketType: 'general' });
     setSelectedDateId('');
     setIsAddTicketOpen(false);
+  };
+
+  // === Merch admin handlers ===
+  const openNewProduct = () => {
+    setEditingProduct(null);
+    setProductForm(emptyProduct);
+    setSizesInput('');
+    setColorsInput('');
+    setImagePreview('');
+    setIsProductModalOpen(true);
+  };
+
+  const openEditProduct = (product: AdminProduct) => {
+    setEditingProduct(product);
+    setProductForm({
+      name: product.name,
+      shortDescription: product.shortDescription,
+      description: product.description,
+      price: product.price,
+      image: product.image,
+      material: product.material,
+      inspiration: product.inspiration,
+      sizes: product.sizes || [],
+      colors: product.colors || [],
+      category: product.category,
+      visible: product.visible,
+    });
+    setSizesInput((product.sizes || []).join(', '));
+    setColorsInput((product.colors || []).join(', '));
+    setImagePreview(product.image);
+    setIsProductModalOpen(true);
+  };
+
+  const handleSaveProduct = () => {
+    if (!productForm.name.trim() || !productForm.price) return;
+
+    const sizes = sizesInput.split(',').map(s => s.trim()).filter(Boolean);
+    const colors = colorsInput.split(',').map(s => s.trim()).filter(Boolean);
+
+    if (editingProduct) {
+      setMerchProducts(prev => prev.map(p =>
+        p.id === editingProduct.id
+          ? { ...p, ...productForm, sizes, colors }
+          : p
+      ));
+    } else {
+      const newProduct: AdminProduct = {
+        id: `prod-${Date.now()}`,
+        ...productForm,
+        sizes,
+        colors,
+      };
+      setMerchProducts(prev => [...prev, newProduct]);
+    }
+    setIsProductModalOpen(false);
+  };
+
+  const handleDeleteProduct = (id: string) => {
+    setMerchProducts(prev => prev.filter(p => p.id !== id));
+    setDeleteConfirmId(null);
+  };
+
+  const toggleProductVisibility = (id: string) => {
+    setMerchProducts(prev => prev.map(p =>
+      p.id === id ? { ...p, visible: !p.visible } : p
+    ));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setImagePreview(result);
+      setProductForm(prev => ({ ...prev, image: result }));
+    };
+    reader.readAsDataURL(file);
   };
 
   const formatDate = (date: Date) => {
@@ -242,7 +358,11 @@ export default function Dashboard() {
   const sidebarNavItems = [
     { icon: Home, label: 'Inicio / KPIs', section: 'kpis' as const },
     { icon: Calendar, label: 'Evento / Fechas', section: 'eventos' as const },
+    { icon: ShoppingBag, label: 'Merchandising', section: 'merch' as const },
   ];
+
+  const visibleProducts = merchProducts.filter(p => p.visible).length;
+  const totalMerchValue = merchProducts.reduce((sum, p) => sum + p.price, 0);
 
   return (
     <div className="min-h-screen bg-[#1a1a1a] flex">
@@ -253,6 +373,11 @@ export default function Dashboard() {
           <p className="text-xs text-muted-foreground">Museo La Unidad</p>
         </div>
         
+        <div className="px-4 mb-4 hidden lg:block">
+          <p className="text-xs text-muted-foreground mb-1">Admin Museo</p>
+          <p className="text-xs text-institucional font-medium">Administrador</p>
+        </div>
+        
         <nav className="flex-1 space-y-2 px-3">
           {sidebarNavItems.map((item, index) => (
             <button
@@ -260,7 +385,7 @@ export default function Dashboard() {
               onClick={() => setActiveSection(item.section)}
               className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200
                 ${activeSection === item.section 
-                  ? 'bg-rust/20 text-rust-light' 
+                  ? 'bg-institucional/20 text-institucional' 
                   : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                 }`}
             >
@@ -306,7 +431,7 @@ export default function Dashboard() {
               </div>
               
               <div className="flex items-center gap-2 bg-[#2d2d2d] px-4 py-2 rounded-lg">
-                <User className="w-4 h-4 text-rust-light" />
+                <User className="w-4 h-4 text-institucional" />
                 <span className="text-sm text-foreground hidden sm:block">Operador: Puerta Principal</span>
               </div>
             </div>
@@ -355,8 +480,8 @@ export default function Dashboard() {
 
                 <div className="bg-[#2d2d2d] rounded-xl p-6 border border-border">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-rust/20">
-                      <CalendarCheck className="w-5 h-5 text-rust-light" />
+                    <div className="p-2 rounded-lg bg-institucional/20">
+                      <CalendarCheck className="w-5 h-5 text-institucional" />
                     </div>
                     <span className="text-muted-foreground text-sm">Próximo Turno</span>
                   </div>
@@ -365,7 +490,7 @@ export default function Dashboard() {
                     <span className="text-muted-foreground text-lg mb-1">hs</span>
                   </div>
                   <p className="text-sm text-muted-foreground mt-2">
-                    <span className="text-rust-light font-semibold">{nextTurnReservations}</span> reservas confirmadas
+                    <span className="text-institucional font-semibold">{nextTurnReservations}</span> reservas confirmadas
                   </p>
                 </div>
               </section>
@@ -373,7 +498,7 @@ export default function Dashboard() {
               {/* Validación Rápida */}
               <section className="bg-[#2d2d2d] rounded-xl p-8 border border-border">
                 <h3 className="text-xl font-serif text-foreground mb-6 flex items-center gap-3">
-                  <QrCode className="w-6 h-6 text-rust-light" />
+                  <QrCode className="w-6 h-6 text-institucional" />
                   Validación Rápida
                 </h3>
                 
@@ -387,14 +512,14 @@ export default function Dashboard() {
                       value={ticketCode}
                       onChange={(e) => setTicketCode(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleValidation()}
-                      className="pl-14 h-16 text-lg bg-[#1a1a1a] border-2 border-border text-foreground placeholder:text-muted-foreground focus:border-rust-light transition-colors"
+                      className="pl-14 h-16 text-lg bg-[#1a1a1a] border-2 border-border text-foreground placeholder:text-muted-foreground focus:border-institucional transition-colors"
                     />
                   </div>
                   
                   <Button
                     onClick={handleValidation}
                     disabled={!ticketCode.trim()}
-                    className="w-full h-14 text-lg font-semibold bg-rust hover:bg-rust-light text-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="w-full h-14 text-lg font-semibold bg-institucional hover:bg-institucional-light text-background disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
                     <CheckCircle2 className="w-5 h-5 mr-2" />
                     Validar Acceso
@@ -434,7 +559,7 @@ export default function Dashboard() {
               {/* Ingresos Recientes */}
               <section className="bg-[#2d2d2d] rounded-xl p-6 border border-border">
                 <h3 className="text-lg font-serif text-foreground mb-4 flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-rust-light" />
+                  <Clock className="w-5 h-5 text-institucional" />
                   Ingresos Recientes
                 </h3>
                 
@@ -468,14 +593,14 @@ export default function Dashboard() {
                 </div>
               </section>
             </>
-          ) : (
+          ) : activeSection === 'eventos' ? (
             <>
               {/* Sección de Evento */}
               <section className="bg-[#2d2d2d] rounded-xl p-6 border border-border">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
                   <div>
                     <h3 className="text-2xl font-serif text-foreground flex items-center gap-3">
-                      <Ticket className="w-7 h-7 text-rust-light" />
+                      <Ticket className="w-7 h-7 text-institucional" />
                       Visita Guiada - Museo La Unidad
                     </h3>
                     <p className="text-muted-foreground mt-1">Gestión de fechas y entradas</p>
@@ -489,7 +614,7 @@ export default function Dashboard() {
                     
                     <Button
                       onClick={() => setIsAddTicketOpen(true)}
-                      className="h-12 px-6 bg-rust hover:bg-rust-light text-foreground font-semibold"
+                      className="h-12 px-6 bg-institucional hover:bg-institucional-light text-background font-semibold"
                     >
                       <Plus className="w-5 h-5 mr-2" />
                       Agregar Ticket Manual
@@ -513,13 +638,13 @@ export default function Dashboard() {
                         <div 
                           key={eventDate.id}
                           className={`bg-[#1a1a1a] rounded-lg p-4 border transition-all
-                            ${isToday(eventDate.date) ? 'border-rust-light' : 'border-border'}
+                            ${isToday(eventDate.date) ? 'border-institucional' : 'border-border'}
                             ${isFull ? 'opacity-60' : ''}
                           `}
                         >
                           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                             <div className="flex items-center gap-4">
-                              <div className={`text-center min-w-[60px] ${isToday(eventDate.date) ? 'text-rust-light' : 'text-foreground'}`}>
+                              <div className={`text-center min-w-[60px] ${isToday(eventDate.date) ? 'text-institucional' : 'text-foreground'}`}>
                                 <p className="text-2xl font-bold">{eventDate.date.getDate()}</p>
                                 <p className="text-xs text-muted-foreground uppercase">
                                   {eventDate.date.toLocaleDateString('es-AR', { month: 'short' })}
@@ -530,7 +655,7 @@ export default function Dashboard() {
                                 <p className="text-foreground font-medium capitalize">
                                   {eventDate.date.toLocaleDateString('es-AR', { weekday: 'long' })}
                                   {isToday(eventDate.date) && (
-                                    <Badge className="ml-2 bg-rust/20 text-rust-light border-rust/30">Hoy</Badge>
+                                    <Badge className="ml-2 bg-institucional/20 text-institucional border-institucional/30">Hoy</Badge>
                                   )}
                                 </p>
                                 <p className="text-sm text-muted-foreground">{eventDate.timeSlot}</p>
@@ -545,7 +670,7 @@ export default function Dashboard() {
                               
                               <div className="text-right">
                                 <p className="text-sm text-muted-foreground">Manual</p>
-                                <p className="text-lg font-semibold text-rust-light">{eventDate.manualTickets}</p>
+                                <p className="text-lg font-semibold text-institucional">{eventDate.manualTickets}</p>
                               </div>
                               
                               <div className="min-w-[120px]">
@@ -590,7 +715,7 @@ export default function Dashboard() {
               {manualTickets.length > 0 && (
                 <section className="bg-[#2d2d2d] rounded-xl p-6 border border-border">
                   <h3 className="text-lg font-serif text-foreground mb-4 flex items-center gap-3">
-                    <Ticket className="w-5 h-5 text-rust-light" />
+                    <Ticket className="w-5 h-5 text-institucional" />
                     Tickets Manuales Agregados
                   </h3>
                   
@@ -614,7 +739,7 @@ export default function Dashboard() {
                               <TableCell className="text-foreground">{ticket.name}</TableCell>
                               <TableCell className="text-muted-foreground">{ticket.dni}</TableCell>
                               <TableCell>
-                                <Badge className="bg-rust/20 text-rust-light border-rust/30 capitalize">
+                                <Badge className="bg-institucional/20 text-institucional border-institucional/30 capitalize">
                                   {ticket.ticketType}
                                 </Badge>
                               </TableCell>
@@ -630,6 +755,156 @@ export default function Dashboard() {
                 </section>
               )}
             </>
+          ) : (
+            /* ============================== */
+            /* MERCHANDISING ADMIN SECTION    */
+            /* ============================== */
+            <>
+              {/* KPIs de Merch */}
+              <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-[#2d2d2d] rounded-xl p-6 border border-border">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 rounded-lg bg-institucional/20">
+                      <Package className="w-5 h-5 text-institucional" />
+                    </div>
+                    <span className="text-muted-foreground text-sm">Productos Totales</span>
+                  </div>
+                  <div className="flex items-end gap-2">
+                    <span className="text-4xl font-bold text-foreground">{merchProducts.length}</span>
+                    <span className="text-muted-foreground text-lg mb-1">items</span>
+                  </div>
+                </div>
+
+                <div className="bg-[#2d2d2d] rounded-xl p-6 border border-border">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 rounded-lg bg-[hsl(var(--status-success))]/20">
+                      <Eye className="w-5 h-5 text-[hsl(var(--status-success))]" />
+                    </div>
+                    <span className="text-muted-foreground text-sm">Productos Visibles</span>
+                  </div>
+                  <div className="flex items-end gap-2">
+                    <span className="text-4xl font-bold text-foreground">{visibleProducts}</span>
+                    <span className="text-muted-foreground text-lg mb-1">/ {merchProducts.length}</span>
+                  </div>
+                </div>
+
+                <div className="bg-[#2d2d2d] rounded-xl p-6 border border-border">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 rounded-lg bg-institucional/20">
+                      <DollarSign className="w-5 h-5 text-institucional" />
+                    </div>
+                    <span className="text-muted-foreground text-sm">Categorías Activas</span>
+                  </div>
+                  <div className="flex items-end gap-2">
+                    <span className="text-4xl font-bold text-foreground">
+                      {new Set(merchProducts.map(p => p.category)).size}
+                    </span>
+                    <span className="text-muted-foreground text-lg mb-1">categorías</span>
+                  </div>
+                </div>
+              </section>
+
+              {/* Product Table */}
+              <section className="bg-[#2d2d2d] rounded-xl p-6 border border-border">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+                  <div>
+                    <h3 className="text-2xl font-serif text-foreground flex items-center gap-3">
+                      <ShoppingBag className="w-7 h-7 text-institucional" />
+                      Gestión de Productos
+                    </h3>
+                    <p className="text-muted-foreground mt-1">Administrar catálogo de merchandising</p>
+                  </div>
+                  
+                  <Button
+                    onClick={openNewProduct}
+                    className="h-12 px-6 bg-institucional hover:bg-institucional-light text-background font-semibold"
+                  >
+                    <Plus className="w-5 h-5 mr-2" />
+                    Nuevo Producto
+                  </Button>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border hover:bg-transparent">
+                        <TableHead className="text-muted-foreground w-16">Imagen</TableHead>
+                        <TableHead className="text-muted-foreground">Producto</TableHead>
+                        <TableHead className="text-muted-foreground">Categoría</TableHead>
+                        <TableHead className="text-muted-foreground">Precio</TableHead>
+                        <TableHead className="text-muted-foreground">Estado</TableHead>
+                        <TableHead className="text-muted-foreground text-right">Acciones</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {merchProducts.map((product) => (
+                        <TableRow key={product.id} className="border-border hover:bg-[#1a1a1a]">
+                          <TableCell>
+                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-[#1a1a1a] border border-border">
+                              {product.image ? (
+                                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <ImageIcon className="w-5 h-5 text-muted-foreground" />
+                                </div>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="text-foreground font-medium">{product.name}</p>
+                              <p className="text-xs text-muted-foreground truncate max-w-[200px]">{product.shortDescription}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className="bg-institucional/20 text-institucional border-institucional/30">
+                              {product.category}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-foreground font-mono">{formatPrice(product.price)}</TableCell>
+                          <TableCell>
+                            <button
+                              onClick={() => toggleProductVisibility(product.id)}
+                              className="flex items-center gap-1.5"
+                            >
+                              {product.visible ? (
+                                <Badge className="bg-[hsl(var(--status-success))]/20 text-[hsl(var(--status-success))] border-[hsl(var(--status-success))]/30 cursor-pointer">
+                                  <Eye className="w-3 h-3 mr-1" /> Visible
+                                </Badge>
+                              ) : (
+                                <Badge className="bg-muted text-muted-foreground border-border cursor-pointer">
+                                  <EyeOff className="w-3 h-3 mr-1" /> Oculto
+                                </Badge>
+                              )}
+                            </button>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openEditProduct(product)}
+                                className="border-border text-foreground hover:bg-[#1a1a1a] hover:text-institucional"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setDeleteConfirmId(product.id)}
+                                className="border-border text-foreground hover:bg-[hsl(var(--status-danger))]/10 hover:text-[hsl(var(--status-danger))] hover:border-[hsl(var(--status-danger))]/30"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </section>
+            </>
           )}
         </div>
       </main>
@@ -639,7 +914,7 @@ export default function Dashboard() {
         <DialogContent className="bg-[#2d2d2d] border-border text-foreground max-w-md">
           <DialogHeader>
             <DialogTitle className="text-xl font-serif flex items-center gap-2">
-              <Ticket className="w-5 h-5 text-rust-light" />
+              <Ticket className="w-5 h-5 text-institucional" />
               Agregar Ticket Manual
             </DialogTitle>
           </DialogHeader>
@@ -718,11 +993,229 @@ export default function Dashboard() {
               <Button
                 onClick={handleAddManualTicket}
                 disabled={!newTicket.name.trim() || !newTicket.dni.trim() || !selectedDateId}
-                className="flex-1 bg-rust hover:bg-rust-light text-foreground"
+                className="flex-1 bg-institucional hover:bg-institucional-light text-background"
               >
                 Agregar Ticket
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Producto (Crear / Editar) */}
+      <Dialog open={isProductModalOpen} onOpenChange={setIsProductModalOpen}>
+        <DialogContent className="bg-[#2d2d2d] border-border text-foreground max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-serif flex items-center gap-2">
+              <ShoppingBag className="w-5 h-5 text-institucional" />
+              {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-5 pt-4">
+            {/* Image Upload */}
+            <div>
+              <label className="text-sm text-muted-foreground mb-2 block">Imagen del Producto</label>
+              <div className="flex items-start gap-4">
+                <div className="w-28 h-28 rounded-xl overflow-hidden bg-[#1a1a1a] border border-border flex-shrink-0">
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
+                      <ImageIcon className="w-8 h-8 mb-1" />
+                      <span className="text-[10px]">Sin imagen</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <label className="flex items-center gap-2 px-4 py-3 rounded-lg border border-dashed border-border bg-[#1a1a1a] cursor-pointer hover:border-institucional/50 transition-colors">
+                    <Upload className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Subir imagen...</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-2">JPG, PNG o WEBP. Recomendado: 800×800px</p>
+                  {imagePreview && (
+                    <button
+                      onClick={() => { setImagePreview(''); setProductForm(prev => ({ ...prev, image: '' })); }}
+                      className="text-xs text-[hsl(var(--status-danger))] hover:underline mt-1"
+                    >
+                      Eliminar imagen
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Name */}
+            <div>
+              <label className="text-sm text-muted-foreground mb-2 block">Nombre del Producto *</label>
+              <Input
+                value={productForm.name}
+                onChange={(e) => setProductForm(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Ej: Remera La Unidad"
+                className="bg-[#1a1a1a] border-border text-foreground"
+              />
+            </div>
+
+            {/* Short Description */}
+            <div>
+              <label className="text-sm text-muted-foreground mb-2 block">Descripción corta</label>
+              <Input
+                value={productForm.shortDescription}
+                onChange={(e) => setProductForm(prev => ({ ...prev, shortDescription: e.target.value }))}
+                placeholder="Breve descripción para la grilla"
+                className="bg-[#1a1a1a] border-border text-foreground"
+              />
+            </div>
+
+            {/* Full Description */}
+            <div>
+              <label className="text-sm text-muted-foreground mb-2 block">Descripción completa</label>
+              <Textarea
+                value={productForm.description}
+                onChange={(e) => setProductForm(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Descripción detallada del producto..."
+                rows={3}
+                className="bg-[#1a1a1a] border-border text-foreground resize-none"
+              />
+            </div>
+
+            {/* Price + Category */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-muted-foreground mb-2 block">Precio (ARS) *</label>
+                <Input
+                  type="number"
+                  value={productForm.price || ''}
+                  onChange={(e) => setProductForm(prev => ({ ...prev, price: Number(e.target.value) }))}
+                  placeholder="12000"
+                  className="bg-[#1a1a1a] border-border text-foreground"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-2 block">Categoría</label>
+                <Select
+                  value={productForm.category}
+                  onValueChange={(val) => setProductForm(prev => ({ ...prev, category: val }))}
+                >
+                  <SelectTrigger className="bg-[#1a1a1a] border-border text-foreground">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#2d2d2d] border-border">
+                    {PRODUCT_CATEGORIES.map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Material */}
+            <div>
+              <label className="text-sm text-muted-foreground mb-2 block">Material</label>
+              <Input
+                value={productForm.material}
+                onChange={(e) => setProductForm(prev => ({ ...prev, material: e.target.value }))}
+                placeholder="Ej: Algodón orgánico 180g"
+                className="bg-[#1a1a1a] border-border text-foreground"
+              />
+            </div>
+
+            {/* Inspiration */}
+            <div>
+              <label className="text-sm text-muted-foreground mb-2 block">Inspiración / Concepto</label>
+              <Textarea
+                value={productForm.inspiration}
+                onChange={(e) => setProductForm(prev => ({ ...prev, inspiration: e.target.value }))}
+                placeholder="Conexión con la historia del museo..."
+                rows={2}
+                className="bg-[#1a1a1a] border-border text-foreground resize-none"
+              />
+            </div>
+
+            {/* Sizes + Colors */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-muted-foreground mb-2 block">Talles (separados por coma)</label>
+                <Input
+                  value={sizesInput}
+                  onChange={(e) => setSizesInput(e.target.value)}
+                  placeholder="S, M, L, XL"
+                  className="bg-[#1a1a1a] border-border text-foreground"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-2 block">Colores (separados por coma)</label>
+                <Input
+                  value={colorsInput}
+                  onChange={(e) => setColorsInput(e.target.value)}
+                  placeholder="Negro, Blanco"
+                  className="bg-[#1a1a1a] border-border text-foreground"
+                />
+              </div>
+            </div>
+
+            {/* Visible toggle */}
+            <div className="flex items-center justify-between bg-[#1a1a1a] p-4 rounded-lg border border-border">
+              <div>
+                <p className="text-sm text-foreground font-medium">Visible en la tienda</p>
+                <p className="text-xs text-muted-foreground">Si está desactivado, el producto no se mostrará a los visitantes</p>
+              </div>
+              <button
+                onClick={() => setProductForm(prev => ({ ...prev, visible: !prev.visible }))}
+                className={`w-12 h-6 rounded-full transition-colors relative ${productForm.visible ? 'bg-institucional' : 'bg-muted'}`}
+              >
+                <div className={`w-5 h-5 rounded-full bg-foreground absolute top-0.5 transition-transform ${productForm.visible ? 'translate-x-6' : 'translate-x-0.5'}`} />
+              </button>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-4 border-t border-border">
+              <Button
+                variant="outline"
+                onClick={() => setIsProductModalOpen(false)}
+                className="flex-1 border-border text-foreground hover:bg-[#1a1a1a]"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleSaveProduct}
+                disabled={!productForm.name.trim() || !productForm.price}
+                className="flex-1 bg-institucional hover:bg-institucional-light text-background font-semibold"
+              >
+                {editingProduct ? 'Guardar Cambios' : 'Crear Producto'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
+        <DialogContent className="bg-[#2d2d2d] border-border text-foreground max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-serif flex items-center gap-2">
+              <Trash2 className="w-5 h-5 text-[hsl(var(--status-danger))]" />
+              Eliminar Producto
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground text-sm">
+            ¿Estás seguro de que querés eliminar este producto? Esta acción no se puede deshacer.
+          </p>
+          <div className="flex gap-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteConfirmId(null)}
+              className="flex-1 border-border text-foreground hover:bg-[#1a1a1a]"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => deleteConfirmId && handleDeleteProduct(deleteConfirmId)}
+              className="flex-1 bg-[hsl(var(--status-danger))] hover:bg-[hsl(var(--status-danger))]/80 text-foreground font-semibold"
+            >
+              Eliminar
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
