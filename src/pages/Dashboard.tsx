@@ -23,7 +23,15 @@ import {
   Eye,
   EyeOff,
   DollarSign,
-  Package
+  Package,
+  Banknote,
+  Smartphone,
+  CreditCard,
+  ArrowRightLeft,
+  Gift,
+  Printer,
+  Download,
+  FileText
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
@@ -86,6 +94,59 @@ interface AdminProduct extends Product {
   visible: boolean;
 }
 
+// === Cierre de Caja types ===
+interface CajaTicket {
+  id: string;
+  total_price: number;
+  status: 'paid' | 'pending' | 'cancelled';
+  payment_method: 'cash' | 'qr' | 'mercadopago' | 'transfer' | 'invitation';
+  purchase_date: Date;
+  customer_name: string;
+  event_name: string;
+  quantity: number;
+}
+
+// === Mock data for Cierre de Caja ===
+const today = new Date();
+const generateCajaTickets = (): CajaTicket[] => {
+  const h = (hour: number, min: number) => {
+    const d = new Date(today);
+    d.setHours(hour, min, 0, 0);
+    return d;
+  };
+  return [
+    { id: 'TK-001', total_price: 4500, status: 'paid', payment_method: 'cash', purchase_date: h(9, 15), customer_name: 'María González', event_name: 'Visita Guiada Diurna', quantity: 2 },
+    { id: 'TK-002', total_price: 2250, status: 'paid', payment_method: 'mercadopago', purchase_date: h(9, 32), customer_name: 'Carlos Rodríguez', event_name: 'Visita Guiada Diurna', quantity: 1 },
+    { id: 'TK-003', total_price: 6750, status: 'paid', payment_method: 'qr', purchase_date: h(10, 5), customer_name: 'Ana Martínez', event_name: 'Visita Guiada Diurna', quantity: 3 },
+    { id: 'TK-004', total_price: 2250, status: 'pending', payment_method: 'transfer', purchase_date: h(10, 20), customer_name: 'Jorge Fernández', event_name: 'Visita Nocturna', quantity: 1 },
+    { id: 'TK-005', total_price: 9000, status: 'paid', payment_method: 'cash', purchase_date: h(10, 45), customer_name: 'Laura Sánchez', event_name: 'Visita Guiada Diurna', quantity: 4 },
+    { id: 'TK-006', total_price: 0, status: 'paid', payment_method: 'invitation', purchase_date: h(11, 0), customer_name: 'Pedro Álvarez', event_name: 'Visita Guiada Diurna', quantity: 2 },
+    { id: 'TK-007', total_price: 4500, status: 'paid', payment_method: 'transfer', purchase_date: h(11, 30), customer_name: 'Lucía Ramírez', event_name: 'Visita Nocturna', quantity: 2 },
+    { id: 'TK-008', total_price: 2250, status: 'cancelled', payment_method: 'mercadopago', purchase_date: h(12, 0), customer_name: 'Martín López', event_name: 'Visita Guiada Diurna', quantity: 1 },
+    { id: 'TK-009', total_price: 2250, status: 'paid', payment_method: 'qr', purchase_date: h(12, 15), customer_name: 'Valentina Torres', event_name: 'Visita Guiada Diurna', quantity: 1 },
+    { id: 'TK-010', total_price: 6750, status: 'paid', payment_method: 'cash', purchase_date: h(13, 0), customer_name: 'Roberto Díaz', event_name: 'Visita Nocturna', quantity: 3 },
+    { id: 'TK-011', total_price: 4500, status: 'paid', payment_method: 'mercadopago', purchase_date: h(14, 10), customer_name: 'Camila Herrera', event_name: 'Visita Guiada Diurna', quantity: 2 },
+    { id: 'TK-012', total_price: 2250, status: 'paid', payment_method: 'cash', purchase_date: h(14, 45), customer_name: 'Diego Morales', event_name: 'Visita Nocturna', quantity: 1 },
+    { id: 'TK-013', total_price: 0, status: 'paid', payment_method: 'invitation', purchase_date: h(15, 0), customer_name: 'Sofía Ruiz', event_name: 'Visita Guiada Diurna', quantity: 1 },
+    { id: 'TK-014', total_price: 9000, status: 'paid', payment_method: 'transfer', purchase_date: h(15, 30), customer_name: 'Andrés Vega', event_name: 'Visita Nocturna', quantity: 4 },
+    { id: 'TK-015', total_price: 4500, status: 'paid', payment_method: 'qr', purchase_date: h(16, 0), customer_name: 'Florencia Castro', event_name: 'Visita Guiada Diurna', quantity: 2 },
+  ];
+};
+
+const cajaTickets = generateCajaTickets();
+
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
+
+const paymentMethodInfo: Record<string, { label: string; icon: typeof Banknote; color: string }> = {
+  cash: { label: 'Efectivo', icon: Banknote, color: 'text-[hsl(var(--status-success))]' },
+  qr: { label: 'QR', icon: Smartphone, color: 'text-institucional' },
+  mercadopago: { label: 'MercadoPago', icon: CreditCard, color: 'text-[hsl(var(--polo-cyan))]' },
+  transfer: { label: 'Transferencia', icon: ArrowRightLeft, color: 'text-[hsl(var(--polo-violet))]' },
+  invitation: { label: 'Invitación', icon: Gift, color: 'text-[hsl(var(--polo-orange))]' },
+};
+
+// === Original sidebar items (unchanged) ===
 const sidebarItems = [
   { icon: Home, label: 'Inicio / KPIs', active: true },
   { icon: Calendar, label: 'Evento / Fechas', active: false },
@@ -154,7 +215,7 @@ export default function Dashboard() {
   const [dniSearch, setDniSearch] = useState('');
   const [validationResult, setValidationResult] = useState<ValidationResult>('idle');
   const [recentEntries, setRecentEntries] = useState<RecentEntry[]>(mockRecentEntries);
-  const [activeSection, setActiveSection] = useState<'kpis' | 'eventos' | 'merch'>('kpis');
+  const [activeSection, setActiveSection] = useState<'kpis' | 'eventos' | 'merch' | 'cierreCaja'>('kpis');
   const [eventDates, setEventDates] = useState<EventDate[]>(generateEventDates);
   const [manualTickets, setManualTickets] = useState<ManualTicket[]>([]);
   const [isAddTicketOpen, setIsAddTicketOpen] = useState(false);
@@ -174,6 +235,13 @@ export default function Dashboard() {
   const [colorsInput, setColorsInput] = useState('');
   const [imagePreview, setImagePreview] = useState<string>('');
 
+  // === Cierre de Caja state ===
+  const [cajaDate, setCajaDate] = useState(() => {
+    const d = new Date();
+    return d.toISOString().split('T')[0];
+  });
+  const [cajaRealCash, setCajaRealCash] = useState<string>('');
+
   // Métricas simuladas
   const visitorsToday = 145;
   const maxCapacity = 300;
@@ -192,6 +260,50 @@ export default function Dashboard() {
       inputRef.current?.focus();
     }
   }, [activeSection]);
+
+  // === Cierre de Caja computed values ===
+  const filteredCajaTickets = cajaTickets.filter(t => {
+    const ticketDate = t.purchase_date.toISOString().split('T')[0];
+    return ticketDate === cajaDate;
+  });
+
+  const paidTickets = filteredCajaTickets.filter(t => t.status === 'paid');
+  const totalVendido = paidTickets.reduce((sum, t) => sum + t.total_price, 0);
+  const ticketsVendidos = paidTickets.reduce((sum, t) => sum + t.quantity, 0);
+  const ticketPromedio = ticketsVendidos > 0 ? totalVendido / ticketsVendidos : 0;
+
+  const paymentBreakdown = Object.entries(
+    paidTickets.reduce((acc, t) => {
+      if (!acc[t.payment_method]) acc[t.payment_method] = { count: 0, total: 0 };
+      acc[t.payment_method].count += 1;
+      acc[t.payment_method].total += t.total_price;
+      return acc;
+    }, {} as Record<string, { count: number; total: number }>)
+  );
+
+  const totalTeoricoEfectivo = paidTickets
+    .filter(t => t.payment_method === 'cash')
+    .reduce((sum, t) => sum + t.total_price, 0);
+
+  const realCashNumber = parseFloat(cajaRealCash) || 0;
+  const diferenciaCaja = totalTeoricoEfectivo - realCashNumber;
+
+  const handleExportCSV = () => {
+    const header = 'Hora,Evento,Cliente,Cantidad,Método de Pago,Total\n';
+    const rows = paidTickets.map(t => {
+      const hora = t.purchase_date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+      const metodo = paymentMethodInfo[t.payment_method]?.label || t.payment_method;
+      return `${hora},"${t.event_name}","${t.customer_name}",${t.quantity},${metodo},${t.total_price}`;
+    }).join('\n');
+
+    const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `cierre-caja-${cajaDate}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   const handleValidation = () => {
     if (!ticketCode.trim()) return;
@@ -359,6 +471,7 @@ export default function Dashboard() {
     { icon: Home, label: 'Inicio / KPIs', section: 'kpis' as const },
     { icon: Calendar, label: 'Evento / Fechas', section: 'eventos' as const },
     { icon: ShoppingBag, label: 'Merchandising', section: 'merch' as const },
+    { icon: Banknote, label: 'Cierre de Caja', section: 'cierreCaja' as const },
   ];
 
   const visibleProducts = merchProducts.filter(p => p.visible).length;
@@ -367,7 +480,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#1a1a1a] flex">
       {/* Sidebar */}
-      <aside className="w-20 lg:w-64 bg-[#121212] border-r border-border flex flex-col py-6">
+      <aside className="no-print w-20 lg:w-64 bg-[#121212] border-r border-border flex flex-col py-6">
         <div className="px-4 mb-8 hidden lg:block">
           <h2 className="font-serif text-lg text-foreground">Control de Acceso</h2>
           <p className="text-xs text-muted-foreground">Museo La Unidad</p>
@@ -411,7 +524,7 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
         {/* Header */}
-        <header className="bg-[#1f1f1f] border-b border-border px-6 py-4">
+        <header className="no-print bg-[#1f1f1f] border-b border-border px-6 py-4">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
               <p className="text-muted-foreground text-sm capitalize">{formatDate(currentTime)}</p>
@@ -753,6 +866,209 @@ export default function Dashboard() {
                     </Table>
                   </div>
                 </section>
+              )}
+            </>
+          ) : activeSection === 'cierreCaja' ? (
+            /* ============================== */
+            /* CIERRE DE CAJA SECTION         */
+            /* ============================== */
+            <>
+              {/* Header */}
+              <section className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-2xl font-serif text-foreground flex items-center gap-3">
+                    <Banknote className="w-7 h-7 text-institucional" />
+                    Cierre de Caja
+                  </h3>
+                  <p className="text-muted-foreground mt-1">Resumen financiero del día</p>
+                </div>
+
+                <div className="flex items-center gap-3 no-print">
+                  <Input
+                    type="date"
+                    value={cajaDate}
+                    onChange={(e) => setCajaDate(e.target.value)}
+                    className="bg-[#2d2d2d] border-border text-foreground w-44"
+                  />
+                  <Button
+                    onClick={() => window.print()}
+                    variant="outline"
+                    className="border-border text-foreground hover:bg-[#2d2d2d]"
+                  >
+                    <Printer className="w-4 h-4 mr-2" />
+                    Imprimir
+                  </Button>
+                  <Button
+                    onClick={handleExportCSV}
+                    className="bg-institucional hover:bg-institucional-light text-background font-semibold"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Exportar CSV
+                  </Button>
+                </div>
+              </section>
+
+              {paidTickets.length === 0 ? (
+                <section className="bg-[#2d2d2d] rounded-xl p-12 border border-border text-center">
+                  <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-lg text-muted-foreground">No se registraron movimientos para esta fecha.</p>
+                </section>
+              ) : (
+                <>
+                  {/* KPI Cards */}
+                  <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-[#2d2d2d] rounded-xl p-6 border border-border">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 rounded-lg bg-[hsl(var(--status-success))]/20">
+                          <DollarSign className="w-5 h-5 text-[hsl(var(--status-success))]" />
+                        </div>
+                        <span className="text-muted-foreground text-sm">Total Vendido</span>
+                      </div>
+                      <span className="text-3xl font-bold text-foreground">{formatCurrency(totalVendido)}</span>
+                    </div>
+
+                    <div className="bg-[#2d2d2d] rounded-xl p-6 border border-border">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 rounded-lg bg-institucional/20">
+                          <Ticket className="w-5 h-5 text-institucional" />
+                        </div>
+                        <span className="text-muted-foreground text-sm">Tickets Vendidos</span>
+                      </div>
+                      <span className="text-3xl font-bold text-foreground">{ticketsVendidos}</span>
+                    </div>
+
+                    <div className="bg-[#2d2d2d] rounded-xl p-6 border border-border">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 rounded-lg bg-[hsl(var(--polo-cyan))]/20">
+                          <CreditCard className="w-5 h-5 text-[hsl(var(--polo-cyan))]" />
+                        </div>
+                        <span className="text-muted-foreground text-sm">Ticket Promedio</span>
+                      </div>
+                      <span className="text-3xl font-bold text-foreground">{formatCurrency(ticketPromedio)}</span>
+                    </div>
+                  </section>
+
+                  {/* Desglose por Método de Pago */}
+                  <section className="bg-[#2d2d2d] rounded-xl p-6 border border-border">
+                    <h4 className="text-lg font-serif text-foreground mb-4 flex items-center gap-3">
+                      <CreditCard className="w-5 h-5 text-institucional" />
+                      Desglose por Método de Pago
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                      {paymentBreakdown.map(([method, data]) => {
+                        const info = paymentMethodInfo[method];
+                        const Icon = info?.icon || Banknote;
+                        return (
+                          <div key={method} className="bg-[#1a1a1a] rounded-lg p-4 border border-border">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="p-2 rounded-lg bg-[#2d2d2d]">
+                                <Icon className={`w-5 h-5 ${info?.color || 'text-muted-foreground'}`} />
+                              </div>
+                              <span className="text-sm font-medium text-foreground">{info?.label || method}</span>
+                            </div>
+                            <p className="text-2xl font-bold text-foreground">{formatCurrency(data.total)}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{data.count} operacion{data.count !== 1 ? 'es' : ''}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+
+                  {/* Arqueo de Caja */}
+                  <section className="bg-[#2d2d2d] rounded-xl p-6 border border-border">
+                    <h4 className="text-lg font-serif text-foreground mb-4 flex items-center gap-3">
+                      <Banknote className="w-5 h-5 text-institucional" />
+                      Arqueo de Caja (Efectivo)
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="bg-[#1a1a1a] rounded-lg p-5 border border-border text-center">
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Total Teórico</p>
+                        <p className="text-2xl font-bold text-foreground">{formatCurrency(totalTeoricoEfectivo)}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Según sistema</p>
+                      </div>
+
+                      <div className="bg-[#1a1a1a] rounded-lg p-5 border border-border text-center">
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Total Real</p>
+                        <Input
+                          type="number"
+                          placeholder="0.00"
+                          value={cajaRealCash}
+                          onChange={(e) => setCajaRealCash(e.target.value)}
+                          className="bg-[#2d2d2d] border-border text-foreground text-center text-xl font-bold h-12 no-print"
+                        />
+                        {/* Print-only value */}
+                        <p className="text-2xl font-bold text-foreground hidden print-show">{formatCurrency(realCashNumber)}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Conteo manual</p>
+                      </div>
+
+                      <div className="bg-[#1a1a1a] rounded-lg p-5 border border-border text-center">
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Diferencia</p>
+                        <p className={`text-2xl font-bold ${
+                          cajaRealCash === '' ? 'text-muted-foreground' :
+                          diferenciaCaja === 0 ? 'text-[hsl(var(--status-success))]' : 'text-[hsl(var(--status-danger))]'
+                        }`}>
+                          {cajaRealCash === '' ? '—' : formatCurrency(diferenciaCaja)}
+                        </p>
+                        <p className="text-xs mt-1">
+                          {cajaRealCash === '' ? (
+                            <span className="text-muted-foreground">Ingresá el total real</span>
+                          ) : diferenciaCaja === 0 ? (
+                            <span className="text-[hsl(var(--status-success))]">✓ Cuadra</span>
+                          ) : (
+                            <span className="text-[hsl(var(--status-danger))]">✗ Descuadre</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Tabla de Operaciones */}
+                  <section className="bg-[#2d2d2d] rounded-xl p-6 border border-border">
+                    <h4 className="text-lg font-serif text-foreground mb-4 flex items-center gap-3">
+                      <FileText className="w-5 h-5 text-institucional" />
+                      Listado de Operaciones
+                    </h4>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-border hover:bg-transparent">
+                            <TableHead className="text-muted-foreground">Hora</TableHead>
+                            <TableHead className="text-muted-foreground">Evento</TableHead>
+                            <TableHead className="text-muted-foreground">Cliente</TableHead>
+                            <TableHead className="text-muted-foreground text-center">Cantidad</TableHead>
+                            <TableHead className="text-muted-foreground">Método de Pago</TableHead>
+                            <TableHead className="text-muted-foreground text-right">Total</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {paidTickets.map((t) => {
+                            const info = paymentMethodInfo[t.payment_method];
+                            const Icon = info?.icon || Banknote;
+                            return (
+                              <TableRow key={t.id} className="border-border hover:bg-[#1a1a1a]">
+                                <TableCell className="font-mono text-foreground">
+                                  {t.purchase_date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                                </TableCell>
+                                <TableCell className="text-foreground">{t.event_name}</TableCell>
+                                <TableCell className="text-foreground">{t.customer_name}</TableCell>
+                                <TableCell className="text-center text-foreground">{t.quantity}</TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    <Icon className={`w-4 h-4 ${info?.color}`} />
+                                    <span className="text-foreground">{info?.label}</span>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="text-right font-mono text-foreground font-semibold">
+                                  {formatCurrency(t.total_price)}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </section>
+                </>
               )}
             </>
           ) : (

@@ -378,3 +378,25 @@
     backdrop-filter: blur(20px);
   }
 }
+
+/* Print styles for Cierre de Caja */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-show {
+    display: block !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  main {
+    padding: 0 !important;
+  }
+}
